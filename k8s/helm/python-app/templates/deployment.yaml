@@ -33,6 +33,11 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
+            - name: MY_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: sus-secret
+                  key: sus-value
             - name: REDIS_HOST
               value: "{{ include "redis.fullname" .Subcharts.redis }}"
             - name: REDIS_PORT
