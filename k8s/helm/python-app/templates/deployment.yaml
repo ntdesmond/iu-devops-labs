@@ -45,10 +45,7 @@ spec:
                 secretKeyRef:
                   name: sus-secret
                   key: sus-value
-            - name: REDIS_HOST
-              value: "{{ include "redis.fullname" .Subcharts.redis }}"
-            - name: REDIS_PORT
-              value: "6379"
+            {{- include "python-app.redis-env-vars" . | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
