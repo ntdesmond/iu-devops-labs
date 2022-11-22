@@ -1,4 +1,12 @@
 {{/*
+Redis connection vars for the typescript app.
+*/}}
+{{- define "ts-app.redis-env-vars" -}}
+- name: REDIS_URL
+  value: "redis://{{ include "redis.fullname" .Subcharts.redis }}:6379"
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "ts-app.name" -}}

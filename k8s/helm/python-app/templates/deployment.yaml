@@ -32,11 +32,20 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          resources:
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
           env:
-            - name: REDIS_HOST
-              value: "{{ include "redis.fullname" .Subcharts.redis }}"
-            - name: REDIS_PORT
-              value: "6379"
+            - name: MY_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: sus-secret
+                  key: sus-value
+            {{- include "python-app.redis-env-vars" . | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

@@ -1,4 +1,14 @@
 {{/*
+Redis connection vars for the python app.
+*/}}
+{{- define "python-app.redis-env-vars" -}}
+- name: REDIS_HOST
+  value: "{{ include "redis.fullname" .Subcharts.redis }}"
+- name: REDIS_PORT
+  value: "6379"
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "python-app.name" -}}
