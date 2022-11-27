@@ -1,16 +1,17 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: {{ include "python-app.fullname" . }}
+  name: {{ include "ts-app.fullname" . }}
   labels:
-    {{- include "python-app.labels" . | nindent 4 }}
+    {{- include "ts-app.labels" . | nindent 4 }}
 spec:
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "python-app.selectorLabels" . | nindent 6 }}
+      {{- include "ts-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,46 +19,26 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "python-app.selectorLabels" . | nindent 8 }}
+        {{- include "ts-app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "python-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "ts-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      volumes:
-        - name: redis-config
-          configMap:
-            name: redis-config
       containers:
         - name: {{ .Chart.Name }}
-          volumeMounts:
-            - name: redis-config
-              mountPath: "/config"
-              readOnly: true
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          resources:
-            limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
-            requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
-          env:
-            - name: MY_PASS
-              valueFrom:
-                secretKeyRef:
-                  name: sus-secret
-                  key: sus-value
-            {{- include "python-app.redis-env-vars" . | nindent 12 }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- include "ts-app.redis-env-vars" . | nindent 12 }}
           ports:
             - name: http
-              containerPort: 8000
+              containerPort: 3000
               protocol: TCP
           livenessProbe:
             httpGet:

@@ -27,9 +27,11 @@
   },
   "homepage": "https://github.com/ntdesmond/iu-devops-labs#readme",
   "dependencies": {
+    "@types/morgan": "^1.9.3",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-prom-bundle": "^6.5.0",
+    "morgan": "^1.10.0",
     "node": "^16.17.0",
     "ntpclient": "^1.1.2",
     "prom-client": "^14.1.0",

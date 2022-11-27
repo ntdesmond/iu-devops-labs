@@ -3,6 +3,7 @@ import allow_methods from './utils/allow_methods';
 import StatusService from './status';
 import TimeService from './time';
 import promBundle from 'express-prom-bundle';
+import morgan from 'morgan';
 // Yay dependency injection!
 
 const create_app = (
@@ -35,9 +36,13 @@ const create_app = (
 
   
   const metricsMiddleware = promBundle({ includeMethod: true, includePath: true });
+  const loggingMiddleware = morgan('combined');
   const app = express();
   
-  app.use(metricsMiddleware);
+  app
+    .use(metricsMiddleware)
+    .use(loggingMiddleware);
+
   app
     .route('/')
     .get(show_time)
