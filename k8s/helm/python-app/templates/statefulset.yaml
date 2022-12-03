@@ -29,12 +29,45 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
+        - name: init-dir
+          emptyDir:
         - name: redis-config
           configMap:
             name: redis-config
+      initContainers:
+        - name: fetch-ipinfo
+          image: busybox:1.28
+          command:
+            - wget
+            - "-O"
+            - "/init-dir/info.json"
+            - http://ifconfig.co/json
+          volumeMounts:
+            - name: init-dir
+              mountPath: "/init-dir"
+        - name: find-timezone
+          image: busybox:1.28
+          command:
+            - sh
+            - -c
+            - "awk '/time_zone/{ gsub(/[,\"]/, \"\", $2); print $2 }' /init-dir/info.json > /init-dir/timezone"
+          volumeMounts:
+            - name: init-dir
+              mountPath: "/init-dir"
+        - name: delete-ipinfo
+          image: busybox:1.28
+          command:
+            - rm
+            - "/init-dir/info.json"
+          volumeMounts:
+            - name: init-dir
+              mountPath: "/init-dir"
       containers:
         - name: {{ .Chart.Name }}
           volumeMounts:
+            - name: init-dir
+              mountPath: "/init-dir"
+              readOnly: true
             - name: redis-config
               mountPath: "/config"
               readOnly: true
