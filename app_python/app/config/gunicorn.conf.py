@@ -8,3 +8,6 @@ max_requests = 10000
 max_requests_jitter = 1000
 
 keepalive = 5
+
+# Added for logging
+accesslog = '-'
